@@ -1,71 +1,45 @@
-/*
-void main() {
-  runApp(
-   MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.amber,
-        ),
-      ),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Clicker')),
-        body: Center(
-        child: Column(
-            children[
-            const Text("hi"),
-            ElevatedButton(
-            onPressed: () {},
-        child: Text("Central Button"),
-      ),
-      ],
-    ),
-        ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () {},
-      child: Text('Corner Button'),
-    ), //
-  ), //
-  )
-  , //
-  );
-}
-*/
 import 'package:flutter/material.dart';
 
-class Teamlogo extends StatelessWidget {
-  final String name;
-
-  const Teamlogo({super.key, required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.groups),
-        const SizedBox(width: 15),
-        Text(name),
-      ],
-    );
-    throw UnimplementedError();
-  }
-}
-
 void main() {
   runApp(
-    MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white38),
-      ),
-      home: Scaffold(
-        appBar: AppBar(title: Text("The Team")),
-      body: Column(
-        children: [
-          Teamlogo(name: "Bear Metal"),
-          Teamlogo(name: "5 matches scouted"),
-        ],
-      ),
-  )
-    ),
+      MaterialApp(
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.white70),
+          ),
+
+          home: Scaffold(
+            appBar: AppBar(title: Text("Welcome to the Reefscape Scouting App!"),),
+
+              body: Column(
+                children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text("Score L1")
+                ),
+                ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Score L2")
+                  ),
+                  ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Score L3")
+                  ),
+                  ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Score L4")
+                  ),
+                  ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Algae Processed")
+                  ),
+                  ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Net Score")
+                  ),
+                ],
+          )
+
+      )
+      )
   );
 }
