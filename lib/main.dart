@@ -5,155 +5,208 @@ import 'package:go_router/go_router.dart';
 import 'package:training_2027_project2/registerinfopage.dart';
 import 'package:http/http.dart' as http;
 
-final appName = Provider<String>((ref) {
+class Counter extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void increment() {
+    state = state + 1;
+  }
+
+  void decrement() {
+    if (state > 0) {
+      state = state - 1;
+    }
+  }
+}
+
+final appNameProvider = Provider<String>((ref) {
   return "Welcome to the Reefscape Scouting App!!!";
 });
 
+final l1Provider = NotifierProvider<Counter, int>(Counter.new);
+final l2Provider = NotifierProvider<Counter, int>(Counter.new);
+final l3Provider = NotifierProvider<Counter, int>(Counter.new);
+final l4Provider = NotifierProvider<Counter, int>(Counter.new);
+final algaeProvider = NotifierProvider<Counter, int>(Counter.new);
+final netProvider = NotifierProvider<Counter, int>(Counter.new);
+
 void main() {
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MaterialApp(
-        home: Consumer(
-          builder: (context, ref, child) {
-            final currentTitle = ref.watch(appName);
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(currentTitle),
-                centerTitle: true,
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {},
-                child: Text("→"),
-              ),
-              body: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text("☀/🌙"),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: InputDecoration(
-                              labelText: "Team Number",
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            decoration: InputDecoration(
-                              labelText: "Match Number",
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text("Submit"),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Text(
-                        "Counter: 0",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(child: _buildScoringBox("L1 (0)")),
-                                SizedBox(width: 8),
-                                Expanded(child: _buildScoringBox("L2 (0)")),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(child: _buildScoringBox("L3 (0)")),
-                                SizedBox(width: 8),
-                                Expanded(child: _buildScoringBox("L4 (0)")),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(child: _buildScoringBox("Algae Processing (0)")),
-                                SizedBox(width: 8),
-                                Expanded(child: _buildScoringBox("Net Score (0)")),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+        home: ScoutingScreen(),
       ),
     ),
   );
 }
 
-Widget _buildScoringBox(String title) {
-  return Container(
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey),
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+class ScoutingScreen extends ConsumerWidget {
+  const ScoutingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentTitle = ref.watch(appNameProvider);
+    final l1 = ref.watch(l1Provider);
+    final l2 = ref.watch(l2Provider);
+    final l3 = ref.watch(l3Provider);
+    final l4 = ref.watch(l4Provider);
+    final algae = ref.watch(algaeProvider);
+    final net = ref.watch(netProvider);
+    final totalCounter = l1 + l2 + l3 + l4 + algae + net;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(currentTitle),
+        centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Text("→"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () {},
-              child: Text("+"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  child: const Text("☀/🌙"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text("-"),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
+                      labelText: "Team Number",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
+                      labelText: "Match Number",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: const Text("Submit"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+              ),
+              child: Text(
+                "Counter: $totalCounter",
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: ScoringBox(label: "L1", provider: l1Provider)),
+                        const SizedBox(width: 8),
+                        Expanded(child: ScoringBox(label: "L2", provider: l2Provider)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: ScoringBox(label: "L3", provider: l3Provider)),
+                        const SizedBox(width: 8),
+                        Expanded(child: ScoringBox(label: "L4", provider: l4Provider)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: ScoringBox(label: "Algae Processing", provider: algaeProvider)),
+                        const SizedBox(width: 8),
+                        Expanded(child: ScoringBox(label: "Net Score", provider: netProvider)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
+}
+
+class ScoringBox extends ConsumerWidget {
+  final String label;
+  final NotifierProvider<Counter, int> provider;
+
+  const ScoringBox({
+    super.key,
+    required this.label,
+    required this.provider,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(provider);
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "$label ($count)",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(provider.notifier).increment();
+                },
+                child: const Text("+"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(provider.notifier).decrement();
+                },
+                child: const Text("-"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
