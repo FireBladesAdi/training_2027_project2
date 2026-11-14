@@ -20,10 +20,20 @@ class Counter extends Notifier<int> {
   }
 }
 
+class ThemeToggle extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() {
+    state = !state;
+  }
+}
+
 final appNameProvider = Provider<String>((ref) {
   return "Welcome to the Reefscape Scouting App!!!";
 });
 
+final themeToggleProvider = NotifierProvider<ThemeToggle, bool>(ThemeToggle.new);
 final l1Provider = NotifierProvider<Counter, int>(Counter.new);
 final l2Provider = NotifierProvider<Counter, int>(Counter.new);
 final l3Provider = NotifierProvider<Counter, int>(Counter.new);
@@ -34,11 +44,25 @@ final netProvider = NotifierProvider<Counter, int>(Counter.new);
 void main() {
   runApp(
     const ProviderScope(
-      child: MaterialApp(
-        home: ScoutingScreen(),
-      ),
+      child: MyApp(),
     ),
   );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeToggleProvider);
+
+    return MaterialApp(
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const ScoutingScreen(),
+    );
+  }
 }
 
 class ScoutingScreen extends ConsumerWidget {
@@ -47,6 +71,7 @@ class ScoutingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTitle = ref.watch(appNameProvider);
+    final isDarkMode = ref.watch(themeToggleProvider);
     final l1 = ref.watch(l1Provider);
     final l2 = ref.watch(l2Provider);
     final l3 = ref.watch(l3Provider);
@@ -60,9 +85,22 @@ class ScoutingScreen extends ConsumerWidget {
         title: Text(currentTitle),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Text("→"),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(13),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(width: 64),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("Submit"),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text("→"),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -71,9 +109,12 @@ class ScoutingScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text("☀/🌙"),
+                const Text("☀/🌙"),
+                Switch(
+                  value: isDarkMode,
+                  onChanged: (value) {
+                    ref.read(themeToggleProvider.notifier).toggle();
+                  },
                 ),
               ],
             ),
@@ -100,11 +141,6 @@ class ScoutingScreen extends ConsumerWidget {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text("Submit"),
                 ),
               ],
             ),
