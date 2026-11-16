@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:training_2027_project2/registerinfopage.dart';
-import 'package:http/http.dart' as http;
+import 'package:training_2027_project2/classes.dart';
+import 'package:training_2027_project2/info.dart';
+import 'package:training_2027_project2/setup_page.dart';
 
 class Counter extends Notifier<int> {
   @override
@@ -18,6 +18,10 @@ class Counter extends Notifier<int> {
       state = state - 1;
     }
   }
+
+  void reset() {
+    state = 0;
+  }
 }
 
 class ThemeToggle extends Notifier<bool> {
@@ -29,17 +33,66 @@ class ThemeToggle extends Notifier<bool> {
   }
 }
 
+class TextInputNotifier extends Notifier<String> {
+  @override
+  String build() => "";
+
+  void update(String newText) {
+    state = newText;
+  }
+}
+
+class PositionNotifier extends Notifier<Position> {
+  @override
+  Position build() => Position.red1;
+
+  void select(Position newPosition) {
+    state = newPosition;
+  }
+}
+
+class MatchesNotifier extends Notifier<List<MatchData>> {
+  @override
+  List<MatchData> build() => [];
+
+  void addMatch(MatchData match) {
+    state = [...state, match];
+  }
+}
+
 final appNameProvider = Provider<String>((ref) {
   return "Welcome to the Reefscape Scouting App!!!";
 });
 
 final themeToggleProvider = NotifierProvider<ThemeToggle, bool>(ThemeToggle.new);
+final teamNumberProvider = NotifierProvider<TextInputNotifier, String>(TextInputNotifier.new);
+final matchNumberProvider = NotifierProvider<TextInputNotifier, String>(TextInputNotifier.new);
+final positionProvider = NotifierProvider<PositionNotifier, Position>(PositionNotifier.new);
+final matchesProvider = NotifierProvider<MatchesNotifier, List<MatchData>>(MatchesNotifier.new);
+
 final l1Provider = NotifierProvider<Counter, int>(Counter.new);
 final l2Provider = NotifierProvider<Counter, int>(Counter.new);
 final l3Provider = NotifierProvider<Counter, int>(Counter.new);
 final l4Provider = NotifierProvider<Counter, int>(Counter.new);
 final algaeProvider = NotifierProvider<Counter, int>(Counter.new);
 final netProvider = NotifierProvider<Counter, int>(Counter.new);
+
+final _router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SetupPage(),
+    ),
+    GoRoute(
+      path: '/scout',
+      builder: (context, state) => const ScoutingScreen(),
+    ),
+    GoRoute(
+      path: '/info',
+      builder: (context, state) => const RegisterInfoPage(),
+    ),
+  ],
+);
 
 void main() {
   runApp(
@@ -56,11 +109,11 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(themeToggleProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: _router,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const ScoutingScreen(),
     );
   }
 }
@@ -71,7 +124,9 @@ class ScoutingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTitle = ref.watch(appNameProvider);
-    final isDarkMode = ref.watch(themeToggleProvider);
+    final teamNumber = ref.watch(teamNumberProvider);
+    final matchNumber = ref.watch(matchNumberProvider);
+    final position = ref.watch(positionProvider);
     final l1 = ref.watch(l1Provider);
     final l2 = ref.watch(l2Provider);
     final l3 = ref.watch(l3Provider);
@@ -90,13 +145,45 @@ class ScoutingScreen extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(width: 64),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                context.go('/');
+              },
+              child: const Text("←"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (teamNumber.isNotEmpty && matchNumber.isNotEmpty) {
+                  final newMatch = MatchData(
+                    int.parse(teamNumber),
+                    int.parse(matchNumber),
+                    position,
+                    l1,
+                    l2,
+                    l3,
+                    l4,
+                    algae,
+                    net,
+                  );
+
+                  ref.read(matchesProvider.notifier).addMatch(newMatch);
+
+                  ref.read(l1Provider.notifier).reset();
+                  ref.read(l2Provider.notifier).reset();
+                  ref.read(l3Provider.notifier).reset();
+                  ref.read(l4Provider.notifier).reset();
+                  ref.read(algaeProvider.notifier).reset();
+                  ref.read(netProvider.notifier).reset();
+
+                  context.go('/');
+                }
+              },
               child: const Text("Submit"),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                context.go('/info');
+              },
               child: const Text("→"),
             ),
           ],
@@ -106,43 +193,9 @@ class ScoutingScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Text("☀/🌙"),
-                Switch(
-                  value: isDarkMode,
-                  onChanged: (value) {
-                    ref.read(themeToggleProvider.notifier).toggle();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: "Team Number",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: "Match Number",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              "Team: ${teamNumber.isEmpty ? 'N/A' : teamNumber} | Match: ${matchNumber.isEmpty ? 'N/A' : matchNumber} | ${position.name}",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Container(
@@ -211,6 +264,8 @@ class ScoringBox extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final count = ref.watch(provider);
+    final isDarkMode = ref.watch(themeToggleProvider);
+    final borderColor = isDarkMode ? Colors.white70 : Colors.black;
 
     return Container(
       decoration: BoxDecoration(
@@ -219,28 +274,48 @@ class ScoringBox extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            "$label ($count)",
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(provider.notifier).increment();
-                },
-                child: const Text("+"),
+              SizedBox(
+                width: 100,
+                height: 75,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: borderColor, width: 2),
+                    ),
+                  ),
+                  onPressed: () {
+                    ref.read(provider.notifier).increment();
+                  },
+                  child: const Text("+", style: TextStyle(fontSize: 34)),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(provider.notifier).decrement();
-                },
-                child: const Text("-"),
+              Text(
+                "$label ($count)",
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                width: 100,
+                height: 75,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: borderColor, width: 2),
+                    ),
+                  ),
+                  onPressed: () {
+                    ref.read(provider.notifier).decrement();
+                  },
+                  child: const Text("-", style: TextStyle(fontSize: 34)),
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
