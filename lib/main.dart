@@ -42,21 +42,17 @@ class TextInputNotifier extends Notifier<String> {
   }
 }
 
-class PositionNotifier extends Notifier<Position> {
-  @override
-  Position build() => Position.red1;
-
-  void select(Position newPosition) {
-    state = newPosition;
-  }
-}
-
 class MatchesNotifier extends Notifier<List<MatchData>> {
   @override
   List<MatchData> build() => [];
 
   void addMatch(MatchData match) {
-    state = [...state, match];
+    List<MatchData> updatedList = [];
+    for (var item in state) {
+      updatedList.add(item);
+    }
+    updatedList.add(match);
+    state = updatedList;
   }
 }
 
@@ -67,7 +63,7 @@ final appNameProvider = Provider<String>((ref) {
 final themeToggleProvider = NotifierProvider<ThemeToggle, bool>(ThemeToggle.new);
 final teamNumberProvider = NotifierProvider<TextInputNotifier, String>(TextInputNotifier.new);
 final matchNumberProvider = NotifierProvider<TextInputNotifier, String>(TextInputNotifier.new);
-final positionProvider = NotifierProvider<PositionNotifier, Position>(PositionNotifier.new);
+final positionProvider = NotifierProvider<TextInputNotifier, String>(TextInputNotifier.new);
 final matchesProvider = NotifierProvider<MatchesNotifier, List<MatchData>>(MatchesNotifier.new);
 
 final l1Provider = NotifierProvider<Counter, int>(Counter.new);
@@ -157,7 +153,7 @@ class ScoutingScreen extends ConsumerWidget {
                   final newMatch = MatchData(
                     int.parse(teamNumber),
                     int.parse(matchNumber),
-                    position,
+                    position.isEmpty ? "Red 1" : position,
                     l1,
                     l2,
                     l3,
@@ -194,7 +190,7 @@ class ScoutingScreen extends ConsumerWidget {
         child: Column(
           children: [
             Text(
-              "Team: ${teamNumber.isEmpty ? 'N/A' : teamNumber} | Match: ${matchNumber.isEmpty ? 'N/A' : matchNumber} | ${position.name}",
+              "Team: ${teamNumber.isEmpty ? 'N/A' : teamNumber} | Match: ${matchNumber.isEmpty ? 'N/A' : matchNumber} | ${position.isEmpty ? 'None' : position}",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
