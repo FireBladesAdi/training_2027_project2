@@ -1,3 +1,10 @@
+class Team {
+  int teamNumber;
+  String teamName;
+
+  Team(this.teamNumber, this.teamName);
+}
+
 class MatchData {
   int teamNumber;
   int matchNumber;

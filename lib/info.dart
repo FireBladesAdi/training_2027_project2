@@ -18,7 +18,7 @@ class RegisterInfoPage extends ConsumerWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(13),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ElevatedButton(
               onPressed: () {
@@ -26,6 +26,13 @@ class RegisterInfoPage extends ConsumerWidget {
               },
               child: const Text("←"),
             ),
+            ElevatedButton(
+              onPressed: () {
+                context.go('/');
+              },
+              child: const Text("Home"),
+            ),
+            const SizedBox(width: 64),
           ],
         ),
       ),

@@ -1,9 +1,33 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:training_2027_project2/classes.dart';
 import 'package:training_2027_project2/info.dart';
 import 'package:training_2027_project2/setup_page.dart';
+
+const tbaApiKey = String.fromEnvironment('TBA_API_KEY');
+
+final eventTeamsProvider = FutureProvider<List<Team>>((ref) async {
+  final response = await http.get(
+    Uri.parse('https://thebluealliance.com/api/v3/event/2026pncmp/teams/simple'),
+    headers: {'X-TBA-Auth-Key': tbaApiKey},
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to load teams');
+  }
+
+  final decodedList = jsonDecode(response.body) as List;
+  List<Team> teams = [];
+  for (var item in decodedList) {
+    int number = item['team_number'] as int;
+    String name = item['nickname'] ?? 'Unknown';
+    teams.add(Team(number, name));
+  }
+  return teams;
+});
 
 class Counter extends Notifier<int> {
   @override
@@ -55,7 +79,6 @@ class MatchesNotifier extends Notifier<List<MatchData>> {
     state = updatedList;
   }
 }
-
 final appNameProvider = Provider<String>((ref) {
   return "Welcome to the Reefscape Scouting App!!!";
 });
@@ -113,7 +136,6 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-
 class ScoutingScreen extends ConsumerWidget {
   const ScoutingScreen({super.key});
 

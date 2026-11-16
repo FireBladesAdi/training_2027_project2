@@ -12,6 +12,7 @@ class SetupPage extends ConsumerWidget {
     final currentTitle = ref.watch(appNameProvider);
     final isDarkMode = ref.watch(themeToggleProvider);
     final selectedPosition = ref.watch(positionProvider);
+    final teamsAsync = ref.watch(eventTeamsProvider);
 
     Set<String> redSelection = {};
     if (selectedPosition == "Red 1" || selectedPosition == "Red 2" || selectedPosition == "Red 3") {
@@ -33,6 +34,13 @@ class SetupPage extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            ElevatedButton(
+              onPressed: () {
+                context.go('/info');
+              },
+              child: const Text("History"),
+            ),
+            const SizedBox(width: 10),
             ElevatedButton(
               onPressed: () {
                 context.go('/scout');
@@ -58,12 +66,12 @@ class SetupPage extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 10),
             const Text(
               "Match Setup",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             Row(
               children: [
                 Expanded(
@@ -95,9 +103,9 @@ class SetupPage extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
             const Text("Red Alliance"),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             SegmentedButton<String>(
               showSelectedIcon: false,
               emptySelectionAllowed: true,
@@ -113,9 +121,9 @@ class SetupPage extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 12),
             const Text("Blue Alliance"),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             SegmentedButton<String>(
               showSelectedIcon: false,
               emptySelectionAllowed: true,
@@ -130,6 +138,31 @@ class SetupPage extends ConsumerWidget {
                   ref.read(positionProvider.notifier).update(newSelection.first);
                 }
               },
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "Teams at Event (2026pncmp)",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: teamsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text("Error loading teams: $error")),
+                data: (teams) => ListView(
+                  children: [
+                    for (var team in teams)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: Text("${team.teamNumber} - ${team.teamName}"),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
